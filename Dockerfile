@@ -1,12 +1,12 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # DOCKERFILE - Task API (Node.js + SQLite)
-# 
+#
 # Multi-stage build per ottimizzare dimensione e sicurezza dell'immagine finale.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # === STAGE 1: Dependencies ===
 # Installa tutte le dipendenze (dev + prod) per la build
-FROM node:20-alpine AS deps
+FROM node:21-alpine AS deps
 
 # better-sqlite3 richiede questi pacchetti per la compilazione nativa
 RUN apk add --no-cache python3 make g++
@@ -14,11 +14,11 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # Copia solo i file necessari per installare le dipendenze
-# Questo layer viene cachato se package*.json non cambiano
-COPY package*.json ./
+# Questo layer viene cachato se package.json non cambia
+COPY package.json ./
 
-# Installa TUTTE le dipendenze (incluse devDependencies)
-RUN npm ci
+# Installa TUTTE le dipendenze e genera il package-lock.json
+RUN npm install
 
 # === STAGE 2: Production Dependencies ===
 # Installa solo le dipendenze di produzione
@@ -28,7 +28,8 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copia package.json e il package-lock.json generato dallo stage "deps"
+COPY --from=deps /app/package*.json ./
 
 # --omit=dev esclude le devDependencies
 RUN npm ci --omit=dev
@@ -49,7 +50,7 @@ RUN apk add --no-cache dumb-init
 # Crea un utente non-root per sicurezza
 # (mai eseguire container come root in produzione)
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 -G nodejs
+  adduser -S nodejs -u 1001 -G nodejs
 
 WORKDIR /app
 
