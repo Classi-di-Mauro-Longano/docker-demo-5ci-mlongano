@@ -3,6 +3,11 @@ const express = require('express');
 
 const app = express();
 
+const { initializeDatabase, db } = require('./config/database');
+
+// Middleware per il parsing del JSON nel body delle richieste
+app.use(express.json());
+
 // Configurazione da variabili d'ambiente con defaults
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
