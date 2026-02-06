@@ -46,13 +46,12 @@ app.get('/', (req, res) => {
 });
 
 app.post('/tasks', (req, res) => {
-
-  // Placeholder per creare un task
-
+  console.log('Received POST /tasks request');
+  console.log('Request body:', req.body);
 
   try {
-    const { title, description = null, priority = 'medium' } = req.body;
     console.log(req.body);
+    const { title, description = null, priority = 'medium' } = req.body;
     console.log(title, description, priority);
 
     const result = db.prepare(`
@@ -66,6 +65,24 @@ app.post('/tasks', (req, res) => {
     res.status(201).json({
       message: 'Task created successfully',
       data: newTask
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Internal Server Error' + error.message
+    });
+  }
+});
+
+app.get('/tasks', (req, res) => {
+  try {
+    const tasks = db.prepare('SELECT * FROM tasks').all();
+    res.json({
+      pagination: {
+        total: tasks.length,
+        limit: tasks.length,
+        offset: 0
+      },
+      data: tasks
     });
   } catch (error) {
     res.status(500).json({
