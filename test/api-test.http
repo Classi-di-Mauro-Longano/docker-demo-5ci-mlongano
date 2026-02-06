@@ -1,6 +1,9 @@
 GET http://localhost:3000/health HTTP/1.1
 Host: localhost:3000
 Accept: application/json
+###
+GET http://localhost:3000/ HTTP/1.1
+
 
 ###
 POST http://localhost:3000/tasks HTTP/1.1
@@ -8,6 +11,13 @@ Host: localhost:3000
 Content-Type: application/json
 
 {
-  "title": "New Task",
-  "description": "This is a new task."
+  "title": "Test Task",
+  "description": "This is a test task",
+  "priority": "high"
 }
+
+###
+GET http://localhost:3000/tasks HTTP/1.1
+Host: localhost:3000
+Accept: application/json
+###
